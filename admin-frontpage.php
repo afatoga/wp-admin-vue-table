@@ -1,3 +1,8 @@
+<?php 
+// $nonce = wp_create_nonce( 'wp_rest' );
+// var_dump($nonce);
+?>
+
 <div id="aa_vue">
 
   <v-app id="inspire">
@@ -95,8 +100,14 @@
     },
 
     mounted() {
-      fetch(wpRestApi.root + "aa_restserver/v1/get_user_list?_wpnonce=" + wpRestApi.nonce, {
-          method: 'GET'
+      fetch(wpRestApi.root + "aa_restserver/v1/get_user_list?", {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            //'Content-Type': 'application/json;charset=UTF-8',
+            'X-WP-Nonce': wpRestApi.nonce,
+            //'credentials': 'include'
+          },
         })
 
         .then(response => {
