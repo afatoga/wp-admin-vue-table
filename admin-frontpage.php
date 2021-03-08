@@ -36,12 +36,13 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in membershipRequests" :key="item.ID">
-            <th>{{item.ID}}</th>
+            <tr v-if="!membershipRequests.length"><td colspan="100%" style="text-align:center; padding:1.8rem">nenalezeno</td></tr>
+            <tr v-for="(item, index) in membershipRequests" :key="item.user_id">
+            <th>{{index +1}}</th>
               <td>{{ item.user_email }}</td>
               <td>{{ item.user_registered }}</td>
               <td>
-                <v-btn class="pa-2" :disabled="isLoading" color="success" rounded @click="confirmUserRequest(item.ID)">
+                <v-btn class="pa-2" :disabled="isLoading" color="success" rounded @click="confirmUserRequest(item.user_id)">
                   Potvrdit
                 </v-btn>
                 <v-btn class="pa-2 ml-2" :disabled="isLoading" color="error" rounded>
