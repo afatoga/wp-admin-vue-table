@@ -46,7 +46,7 @@ function aa_enqueueAdmin(){
    wp_enqueue_script( 'vuetify', 'https://cdn.jsdelivr.net/npm/vuetify@2.4.5/dist/vuetify.js' );
 
    wp_localize_script( 'vue2', 'wpRestApi', [
-         'root'  => esc_url_raw( rest_url() ),
+         'root'  => esc_url_raw( rest_url().'aa_restserver/v1' ), // /wp-json/aa_restserver/v1
          'nonce' => wp_create_nonce( 'wp_rest' ),
    ] );
 

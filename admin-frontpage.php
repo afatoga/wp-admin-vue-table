@@ -100,7 +100,7 @@
     },
 
     mounted() {
-      fetch(wpRestApi.root + "aa_restserver/v1/get_user_list?", {
+      fetch(wpRestApi.root + "/get_user_list", {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
