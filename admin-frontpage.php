@@ -3,12 +3,12 @@
   <v-app>
 
     <v-main>
-    <v-alert dense text v-bind:type="alert.type" max-width="900" v-if="alert.display">
-      <span v-if="alert.action === 'user_confirmed'">Žádost byla schválena, na e-mail <strong>{{selectedUser.user_email}}</strong> bylo odesláno potvrzení o registraci.</span>
-      <span v-else-if="alert.action === 'user_deleted'">Uživatel <strong>{{selectedUser.user_email}}</strong> byl odstraněn z databáze.</span>
-      <span v-else-if="alert.action === 'empty_request_list'">Seznam žádostí je prázdný.</span>
-      <span v-else>Problém s připojením k databázi.</span>
-    </v-alert>
+      <v-alert dense text v-bind:type="alert.type" max-width="900" v-if="alert.display">
+        <span v-if="alert.action === 'user_confirmed'">Žádost byla schválena, na e-mail <strong>{{selectedUser.user_email}}</strong> bylo odesláno potvrzení o registraci.</span>
+        <span v-else-if="alert.action === 'user_deleted'">Uživatel <strong>{{selectedUser.user_email}}</strong> byl odstraněn z databáze.</span>
+        <span v-else-if="alert.action === 'empty_request_list'">Seznam žádostí je prázdný.</span>
+        <span v-else>Problém s připojením k databázi.</span>
+      </v-alert>
       <h2>Žádosti o registraci</h2>
       <v-card max-width="900">
         <v-simple-table fixed-header height="300px">
@@ -36,7 +36,10 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-if="!membershipRequests.length">
+              <tr v-if="isLoading">
+                <td colspan="100%" style="text-align:center; padding:1.8rem">načítám...</td>
+              </tr>
+              <tr v-else-if="!membershipRequests.length">
                 <td colspan="100%" style="text-align:center; padding:1.8rem">nenalezeno</td>
               </tr>
               <tr v-for="(item, index) in membershipRequests" :key="item.user_id">
@@ -74,7 +77,7 @@
         membershipRequests: [],
         isLoading: true,
         alert: {
-          display:false,
+          display: false,
           type: null
         },
         timeoutNotification: null
@@ -100,9 +103,9 @@
         fetch(wpRestApi.root + "/user_registration_request", {
             method: 'POST',
             headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json;charset=UTF-8',
-            'X-WP-Nonce': wpRestApi.nonce,
+              'Accept': 'application/json',
+              'Content-Type': 'application/json;charset=UTF-8',
+              'X-WP-Nonce': wpRestApi.nonce,
             },
             body: JSON.stringify({
               action: action,
@@ -126,29 +129,35 @@
             const updatedList = this.removeItemsFromArray(this.membershipRequests, itemIndex)
             this.membershipRequests = updatedList
 
-            }.bind(this)
-          )
+          }.bind(this))
           .catch(function(error) {
-              this.alert = {
-                display: true,
-                type: "error",
-                action: null
-              }
+            this.alert = {
+              display: true,
+              type: "error",
+              action: null
+            }
 
-              this.isLoading = false
-            }.bind(this)
-          )
+            this.isLoading = false
+          }.bind(this))
       }
     },
 
     watch: {
-      alert: function () {
-        if (this.timeoutNotification) { clearTimeout(this.timeoutNotification) }
-        this.timeoutNotification = setTimeout(function() {return this.alert = {display: false, type:null}}.bind(this), 3400)
+      alert: function() {
+        if (this.timeoutNotification) {
+          clearTimeout(this.timeoutNotification)
+        }
+        this.timeoutNotification = setTimeout(function() {
+          return this.alert = {
+            display: false,
+            type: null
+          }
+        }.bind(this), 3400)
       }
     },
 
     mounted() {
+
       fetch(wpRestApi.root + "/get_user_list", {
           method: 'GET',
           headers: {
@@ -163,35 +172,42 @@
           return Promise.reject(response)
         })
         .then(function(data) {
-
-            this.membershipRequests = data
-            this.isLoading = false
-          }.bind(this)
-        )
+          this.isLoading = false
+          this.membershipRequests = data
+        }.bind(this))
         .catch(function(error) {
-   
-          error.json().then(function (response) {
-            
-            if (response.code === "rest_not_found") {
-              this.alert = {
-                display: true,
-                type: "success",
-                action: "empty_request_list"
-              }
-              return
-            }
 
-            this.alert = {
-              display: true,
-              type: "error",
-              action: null
-            }
-            
-            }.bind(this))
+          error.json().then(function(response) {
 
-          
-        }.bind(this)
-      )
+
+
+            setTimeout(function() {
+
+              this.alert = (response.code === "rest_not_found")
+              ?
+                {
+                  display: true,
+                  type: "success",
+                  action: "empty_request_list"
+                } 
+              :
+                {
+                  display: true,
+                  type: "error",
+                  action: null
+                }
+
+
+              return this.isLoading = false
+            }.bind(this), 2000)
+
+
+
+
+          }.bind(this))
+
+
+        }.bind(this))
     }
   });
 </script>
